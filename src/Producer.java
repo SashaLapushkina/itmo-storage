@@ -1,15 +1,23 @@
 public class Producer implements Runnable {
-    Storage stor;
-    static int val = 0;
+    Storage storage;
 
-    Producer(Storage stor) {
-        this.stor = stor;
+    Producer(Storage storage) {
+        this.storage = storage;
         new Thread(this, "Producer").start();
     }
 
     public void run() {
-        val++;
-        while (!stor.full())
-            stor.put(val);
+        try {
+            int val = 0;
+            while (true) {
+                if (storage.wasConsumed) {
+                    val++;
+                    storage.wasConsumed = false;
+                }
+                storage.put(val);
+            }
+        } catch (InterruptedException e) {
+
+        }
     }
 }

@@ -1,7 +1,8 @@
 public class Main {
     public static void main(String[] args) {
-        Storage stor = new Storage();
-        new Producer(stor);
-        new Consumer(stor);
+        Storage storage = new Storage();
+        new Producer(storage);
+        new Consumer(storage);
+        new Consumer(storage);
     }
 }

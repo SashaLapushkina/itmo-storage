@@ -1,13 +1,19 @@
 public class Consumer implements Runnable {
-    Storage stor;
+    Storage storage;
 
-    Consumer(Storage stor) {
-        this.stor = stor;
+    Consumer(Storage storage) {
+        this.storage = storage;
         new Thread(this, "Consumer").start();
     }
 
     public void run() {
-        while (!stor.empty())
-            stor.get();
+        try {
+            while (true) {
+                storage.get();
+//                storage.wasConsumed = true;
+            }
+        } catch (InterruptedException e) {
+
+        }
     }
 }
