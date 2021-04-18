@@ -10,7 +10,6 @@ public class Consumer implements Runnable {
         try {
             while (true) {
                 storage.get();
-//                storage.wasConsumed = true;
             }
         } catch (InterruptedException e) {
 

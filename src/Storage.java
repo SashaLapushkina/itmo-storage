@@ -2,43 +2,47 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Storage {
+public class Storage implements Queue {
     private int [] box = new int[10];
     private int start = 9;
     private int end = 0;
     private Lock storageLock;
-    private Condition condition;
-    public boolean wasConsumed = true;
+    private Condition full;
+    private Condition empty;
+    public boolean wasConsumed = true; //Если последнее дейтсвие извлечение - true, иначе false
 
     Storage() {
         storageLock = new ReentrantLock();
-        condition = storageLock.newCondition();
+        full = storageLock.newCondition();
+        empty = storageLock.newCondition();
     }
 
+    //Добавление элемента
     public void put(int val) throws InterruptedException {
         storageLock.lock();
         try {
-            while (full()) condition.await();
-                start = (start + 1) % 10;
+            while (full()) full.await();
+                start = step(start);
             if (wasConsumed) {
                 val++;
             }
                 box[start] = val;
                 print();
-                condition.signalAll();
+                empty.signalAll();
         } finally {
             storageLock.unlock();
         }
     }
 
+    //Извлечение элемента
     public int get() throws InterruptedException{
         storageLock.lock();
         try {
-            while (empty()) condition.await();
+            while (empty()) empty.await();
             int x = box[end];
-            end = (end + 1) % 10;
+            end = step(end);
             print();
-            condition.signalAll();
+            full.signalAll();
             wasConsumed = true;
             return x;
         } finally {
@@ -46,24 +50,24 @@ public class Storage {
         }
     }
 
-    private boolean full() {
-        return ((10 + end - start) % 10) == 2;
+    //Места нет
+    public boolean full() {
+        return step(step(start)) == end;
     }
 
-    private boolean empty() {
-        return ((10 + end - start) % 10) == 1;
+    //Пусто
+    public boolean empty() {
+        return step(start) == end;
     }
 
+    //Сдвинуть индекс на 1 в очереди
+    private int step(int val) {
+        return (val + 1) % 10;
+    }
+
+    //Напечатать
     private void print(){
-        if (empty()) System.out.println("");
-        else if (start >= end) {
-            for (int i = end; i <= start; i++) System.out.print(box[i] + " ");
-            System.out.println();
-        }
-        else {
-            for (int i = end; i <= 9; i++) System.out.print(box[i] + " ");
-            for (int i = 0; i <= start; i++) System.out.print(box[i] + " ");
-            System.out.println();
-        }
+        for (int i = end; i != step(start); i = step(i)) System.out.print(box[i] + " ");
+        System.out.println("");
     }
 }

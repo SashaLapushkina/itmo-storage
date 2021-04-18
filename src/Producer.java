@@ -8,10 +8,10 @@ public class Producer implements Runnable {
 
     public void run() {
         try {
-            int val = 0;
+            int val = 0; //Добавляемое значение
             while (true) {
                 if (storage.wasConsumed) {
-                    val++;
+                    val++; //Увеличиваем, если элемент был извлечен
                     storage.wasConsumed = false;
                 }
                 storage.put(val);
