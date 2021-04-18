@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Consumer implements Runnable {
     Storage storage;
 
@@ -9,7 +11,10 @@ public class Consumer implements Runnable {
     public void run() {
         try {
             while (true) {
-                storage.get();
+                Random random = new Random();
+                for (int i = random.nextInt() % 5; i > 0; i--)
+                    storage.get();
+                Thread.sleep(200);
             }
         } catch (InterruptedException e) {
 
